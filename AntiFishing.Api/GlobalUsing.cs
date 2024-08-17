@@ -1,0 +1,44 @@
+﻿global using AntiFishing.Api.AuthDto;
+global using AntiFishing.Api.Base;
+global using AntiFishing.Api.Flask;
+global using AntiFishing.Api.Hubs;
+global using AntiFishing.Core;
+global using AntiFishing.Core.Bases;
+global using AntiFishing.Core.Features.Cameras.Commands.Models;
+global using AntiFishing.Core.Features.Cameras.Queries.Models;
+global using AntiFishing.Core.Features.Lakes.Commands.Models;
+global using AntiFishing.Core.Features.Lakes.Queries.Models;
+global using AntiFishing.Core.Features.Regions.Commands.Models;
+global using AntiFishing.Core.Features.Regions.Queries.Models;
+global using AntiFishing.Core.Features.Schedules.Commands.Models;
+global using AntiFishing.Core.Features.Schedules.Queries.Models;
+global using AntiFishing.Core.Features.Sensors.Commands.Models;
+global using AntiFishing.Core.Features.Sensors.Queries.Models;
+global using AntiFishing.Data.AppMetaData;
+global using AntiFishing.Data.Entities;
+global using AntiFishing.Data.Entities.Identity;
+global using AntiFishing.Data.Helpers;
+global using AntiFishing.Infrastructure;
+global using AntiFishing.Infrastructure.Abstracts;
+global using AntiFishing.Infrastructure.AuthDto;
+global using AntiFishing.Infrastructure.Context;
+global using AntiFishing.Service;
+global using AntiFishing.Service.Abstracts;
+global using AutoMapper;
+global using Hangfire;
+global using MediatR;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.Identity;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.IdentityModel.Tokens;
+global using Microsoft.OpenApi.Models;
+global using System.Net;
+global using System.Reflection;
+global using System.Security.Claims;
+global using System.Text;
+global using System.Text.Json;
+
+
+
