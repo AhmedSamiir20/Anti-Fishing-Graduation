@@ -6,7 +6,7 @@ namespace AntiFishing.Api.Middlewares
 	{
 		private readonly RequestDelegate _next;
 		private static readonly MemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
-		private readonly int _requestLimit = 3;
+		private readonly int _requestLimit = 3; // Limit per endpoint
 		private readonly TimeSpan _timePeriod = TimeSpan.FromDays(1);
 
 		public ThrottlingMiddleware(RequestDelegate next)
@@ -16,19 +16,30 @@ namespace AntiFishing.Api.Middlewares
 
 		public async Task InvokeAsync(HttpContext context)
 		{
-			//endpoints i want to active this rateLimiting on it
-			var rateLimitedEndpoints = new List<string>
-		{
-			"/api/Video/Count-last-video",
-			"/api/Video/status-last-video"
-		};
+			var rateLimitedCount = "/api/Video/Count-last-video";
+			var rateLimitedStatus = "/api/Video/status-last-video";
 
-
-			if (rateLimitedEndpoints.Contains(context.Request.Path.Value!))
+			var ipAddress = context.Connection.RemoteIpAddress?.ToString();
+			if (ipAddress == null)
 			{
-				var ipAddress = context.Connection.RemoteIpAddress?.ToString();
-				var cacheKey = $"Request_{ipAddress}";
+				await _next(context);
+				return; // Don't proceed if there's no IP address
+			}
 
+			// Determine which endpoint is being accessed
+			string cacheKey = null;
+			if (context.Request.Path.Value == rateLimitedCount)
+			{
+				cacheKey = $"Request_Count_{ipAddress}";
+			}
+			else if (context.Request.Path.Value == rateLimitedStatus)
+			{
+				cacheKey = $"Request_Status_{ipAddress}";
+			}
+
+			// If the request is to a rate-limited endpoint
+			if (cacheKey != null)
+			{
 				if (_cache.TryGetValue(cacheKey, out int requestCount))
 				{
 					if (requestCount >= _requestLimit)
@@ -38,18 +49,18 @@ namespace AntiFishing.Api.Middlewares
 						return;
 					}
 
-					_cache.Set(cacheKey, ++requestCount, _timePeriod);
+					// Increment request count for the specific endpoint
+					_cache.Set(cacheKey, requestCount + 1, _timePeriod);
 				}
 				else
 				{
+					// First request for this endpoint
 					_cache.Set(cacheKey, 1, _timePeriod);
 				}
 			}
 
-			//to call next pipline in middleware if i have ^^
+			// Call the next middleware in the pipeline
 			await _next(context);
 		}
 	}
 }
-
-

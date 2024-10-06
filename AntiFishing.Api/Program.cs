@@ -166,7 +166,7 @@ builder.Services.AddRateLimiter(options =>
 			factory: _ => new FixedWindowRateLimiterOptions
 			{
 				PermitLimit = 3,    // Number of allowed requests
-				Window = TimeSpan.FromDays(1),  // After how much can user make another 10 requests
+				Window = TimeSpan.FromMinutes(1),  // After how much can user make another 10 requests
 				QueueLimit = 0,      // Requests to queue if limit is reached
 				AutoReplenishment = true
 			});
@@ -178,21 +178,35 @@ builder.Services.AddRateLimiter(options =>
 var app = builder.Build();
 
 
+if (app.Environment.IsProduction())
+{
+	app.UseDeveloperExceptionPage();
+}
+else
+{
+	app.UseExceptionHandler("/Home/Error"); // Custom error page
+	app.UseHsts();
+}
 
 //Security Header
 app.Use(async (context, next) =>
 {
-	// Set security headers
-	context.Response.Headers.Add("Content-Security-Policy", "default-src 'self'");
-	context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-	context.Response.Headers.Add("X-Frame-Options", "DENY");
-	context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
-	context.Response.Headers.Add("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-	context.Response.Headers.Add("Referrer-Policy", "no-referrer");
+	// Skip adding headers for Swagger UI and other API documentation
+	if (!context.Request.Path.StartsWithSegments("/swagger") &&
+		!context.Request.Path.StartsWithSegments("/api") &&
+		!context.Request.Path.StartsWithSegments("/v1")) // Add more paths if needed
+	{
+		// Set security headers
+		context.Response.Headers.Add("Content-Security-Policy", "default-src 'self'");
+		context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+		context.Response.Headers.Add("X-Frame-Options", "DENY");
+		context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+		context.Response.Headers.Add("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+		context.Response.Headers.Add("Referrer-Policy", "no-referrer");
 
-
-	context.Response.Headers.Remove("X-Powered-By");
-	context.Response.Headers.Remove("Server");
+		context.Response.Headers.Remove("X-Powered-By");
+		context.Response.Headers.Remove("Server");
+	}
 
 	await next();
 });
