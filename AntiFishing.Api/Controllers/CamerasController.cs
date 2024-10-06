@@ -5,6 +5,8 @@
 
 	public class CamerasController : AppControllerBase
 	{
+
+
 		[HttpGet(Router.CameraRouting.NamesList)]
 		public async Task<IActionResult> GetCameras()
 		{
